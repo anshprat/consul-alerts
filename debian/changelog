@@ -1,0 +1,6 @@
+consul-alerts (0.3.0+git-1) trusty; urgency=medium
+
+  * Initial release
+  * Automated build created on Mon Jun  1 22:45:40 IST 2015
+
+ -- Ritesh Raj Sarraf <rrs@debian.org>  Mon, 01 Jun 2015 22:45:40 +0530

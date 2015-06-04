@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+
+DIST=trusty
+
+RJIL_VERSION=$(shell date +%s)
+HUMAN_VERSION=$(shell date --date \@$(RJIL_VERSION) )
+
+export BUILT_VERSION=$(shell dpkg-parsechangelog   | grep ^Version:  | cut -d ' ' -f2 | cut -d ':' -f2)
+
+get-orig-source:
+	wget -c $(BASE_URL)/$(UPSTREAM_FILE) -O ../$(UPSTREAM_FILE) || exit 1
+
+%:
+	dh $@
+
+override_dh_clean:
+	[ ! -f consul-alerts ] || rm -f consul-alerts
+	[ ! -d src/github.com/AcalephStorage/ ] || rm -rf src/github.com/AcalephStorage
+	[ ! -L src/github.com ] || unlink src/github.com
+	[ ! -d src ] || rm -rf src
+	[ ! -f debian/consul-alerts.debhelper.log ]  || rm -f debian/consul-alerts.debhelper.log
+	[ ! -f debian/consul-alerts.substvars ] || rm -f debian/consul-alerts.substvars
+	[ ! -d debian/consul-alerts ] || rm -rf debian/consul-alerts
+	[ ! -f Makefile ] || rm -f Makefile
+
+override_dh_auto_build:
+	[ -d src ] || mkdir src
+	[ -L src/github.com ] || ln -s "$$(readlink -f Godeps/_workspace/src/github.com)" "src/"
+	[ -d src/github.com/AcalephStorage/consul-alerts ] || mkdir -p src/github.com/AcalephStorage/consul-alerts
+	[ -L src/github.com/AcalephStorage/consul-alerts/consul ] || ln -sfT "$$(readlink -f consul )" "src/github.com/AcalephStorage/consul-alerts/consul"
+	[ -L src/github.com/AcalephStorage/consul-alerts/notifier ] || ln -sfT "$$(readlink -f notifier )" "src/github.com/AcalephStorage/consul-alerts/notifier"
+	export GOPATH=$(CURDIR) && go build -o consul-alerts -v .
+
+override_dh_install:
+	dh_install consul-alerts usr/bin/
+
+
+.PHONY: get-orig-source
