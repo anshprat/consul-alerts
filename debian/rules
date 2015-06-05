@@ -11,9 +11,10 @@ override_dh_clean:
 	[ ! -f debian/consul-alerts.debhelper.log ]  || rm -f debian/consul-alerts.debhelper.log
 	[ ! -f debian/consul-alerts.substvars ] || rm -f debian/consul-alerts.substvars
 	[ ! -d debian/consul-alerts ] || rm -rf debian/consul-alerts
-	[ ! -f Makefile ] || rm -f Makefile
+	[ ! -f Makefile ] || mv -f Makefile Makefile.bak
 
 override_dh_auto_build:
+	[ ! -f Makefile ] || mv -f Makefile Makefile.bak
 	[ -d src ] || mkdir src
 	[ -L src/github.com ] || ln -s "$$(readlink -f Godeps/_workspace/src/github.com)" "src/"
 	[ -d src/github.com/AcalephStorage/consul-alerts ] || mkdir -p src/github.com/AcalephStorage/consul-alerts
